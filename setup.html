@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HorseMonitor — Setup</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width:720px;margin:28px auto">
+      <div class="nav">
+        <div class="brand">HorseMonitor — Setup</div>
+        <div class="nav-links small-muted">Step 1</div>
+      </div>
+
+      <h2 class="h1">Stables & Horse counts</h2>
+      <p class="subtitle">Enter how many stables and horses (this helps create initial DB entries)</p>
+
+      <div class="row">
+        <div class="col">
+          <label>No. of stables</label>
+          <input id="numStables" type="number" min="1" value="1" />
+        </div>
+        <div class="col">
+          <label>No. of horses (total)</label>
+          <input id="numHorses" type="number" min="1" value="5" />
+        </div>
+        <div class="col">
+          <label>Male horses</label>
+          <input id="numMale" type="number" min="0" value="2" />
+        </div>
+        <div class="col">
+          <label>Female horses</label>
+          <input id="numFemale" type="number" min="0" value="3" />
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <button id="btnCreate">Create placeholders</button>
+      </div>
+
+      <p class="small-muted" style="margin-top:12px">This will create placeholder stable/horse objects under your user in Firebase Realtime DB.</p>
+      <div id="setupMsg" class="small-muted"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.getElementById('btnCreate').addEventListener('click', async ()=>{
+      const a = parseInt(document.getElementById('numStables').value)||1;
+      const b = parseInt(document.getElementById('numHorses').value)||1;
+      const male = parseInt(document.getElementById('numMale').value)||0;
+      const female = parseInt(document.getElementById('numFemale').value)||0;
+      const res = await app.createPlaceholders(a,b,male,female);
+      document.getElementById('setupMsg').innerText = res.message || 'Done';
+    });
+  </script>
+</body>
+</html>

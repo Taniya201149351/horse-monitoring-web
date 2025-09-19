@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HorseMonitor — Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="nav" style="margin-bottom:14px">
+      <div class="brand">HorseMonitor</div>
+      <div class="nav-links">
+        <a href="setup.html" class="small-muted">Setup</a>
+        <a href="stable_overview.html" class="small-muted">Stable Overview</a>
+        <a href="analysis_all.html" class="small-muted">All Analysis</a>
+        <button id="btnLogout" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit">Logout</button>
+      </div>
+    </div>
+
+    <div id="alertsArea"></div>
+
+    <div id="stablesGrid" class="row"></div>
+    <div style="margin-top:18px" class="card">
+      <h3 class="h1">Quick horse list</h3>
+      <div id="horsesList" class="list"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.getElementById('btnLogout').addEventListener('click', ()=>app.signOut());
+
+    // render stables and horses
+    app.onAuthReady(async (user)=>{
+      // load stables
+      const stables = await app.getAllStables();
+      const stablesGrid = document.getElementById('stablesGrid');
+      stablesGrid.innerHTML = '';
+      for(const id in stables){
+        const s = stables[id];
+        const col = document.createElement('div'); col.className='col';
+        col.innerHTML = `
+          <div class="card widget">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="title">${s.name||id}</div>
+                <div class="small-muted">${s.location||'—'}</div>
+              </div>
+              <div style="text-align:right">
+                <div class="metric">${s.sensors?.temperature ?? '–'} °C</div>
+                <div class="small-muted">Temp</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <div class="widget" style="flex:1">
+                <div class="small-muted">Humidity</div>
+                <div class="metric">${s.sensors?.humidity ?? '–'}%</div>
+              </div>
+              <div class="widget" style="flex:1">
+                <div class="small-muted">H₂S</div>
+                <div class="metric">${s.sensors?.h2s ?? '–'} ppm</div>
+              </div>
+              <div style="display:flex;align-items:center">
+                <a href="stable_overview.html#${id}" style="text-decoration:none"><button>Open</button></a>
+              </div>
+            </div>
+          </div>
+        `;
+        stablesGrid.appendChild(col);
+      }
+
+      // horses list
+      const horses = await app.getAllHorses();
+      const list = document.getElementById('horsesList');
+      list.innerHTML = '';
+      for(const id in horses){
+        const h = horses[id];
+        const it = document.createElement('div'); it.className='item';
+        it.innerHTML = `
+          <div>
+            <div style="font-weight:700">${h.name || id}</div>
+            <div class="small-muted">${h.breed || ''} • ${h.age||'–'} yrs</div>
+          </div>
+          <div style="text-align:right">
+            <div class="small-muted">HR ${h.heartRate||'–'} bpm</div>
+            <div style="margin-top:6px"><a href="horse.html#${id}"><button>View</button></a></div>
+          </div>
+        `;
+        list.appendChild(it);
+      }
+    });
+
+    // realtime alerts listener
+    app.listenAlerts((alert)=>{
+      const alertsArea = document.getElementById('alertsArea');
+      const el = document.createElement('div'); el.className='card alert';
+      el.innerText = `${alert.type.toUpperCase()}: ${alert.message}`;
+      alertsArea.prepend(el);
+      setTimeout(()=>el.remove(), 15000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HorseMonitor — Stable Overview</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="nav" style="margin-bottom:12px">
+      <div class="brand">HorseMonitor</div>
+      <div class="nav-links small-muted"><a href="dashboard.html" class="small-muted">Dashboard</a></div>
+    </div>
+
+    <div id="stableArea"></div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    async function render(){
+      await app.onAuthReady();
+      const stables = await app.getAllStables();
+      const stableArea = document.getElementById('stableArea');
+      stableArea.innerHTML = '';
+      for(const id in stables){
+        const s = stables[id];
+        const card = document.createElement('div'); card.className='card';
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:800">${s.name || id}</div>
+              <div class="small-muted">${s.location || '—'}</div>
+            </div>
+            <div class="small-muted">ID: ${id}</div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <div class="col widget">
+              <div class="small-muted">Temperature</div>
+              <div class="metric">${s.sensors?.temperature ?? '–'} °C</div>
+            </div>
+            <div class="col widget">
+              <div class="small-muted">Humidity</div>
+              <div class="metric">${s.sensors?.humidity ?? '–'} %</div>
+            </div>
+            <div class="col widget">
+              <div class="small-muted">H₂S (ppm)</div>
+              <div class="metric">${s.sensors?.h2s ?? '–'}</div>
+            </div>
+            <div class="col widget">
+              <div class="small-muted">Horses</div>
+              <div class="metric">${Object.keys(s.horses||{}).length}</div>
+            </div>
+          </div>
+          <div style="margin-top:12px" id="alerts-${id}"></div>
+        `;
+        stableArea.appendChild(card);
+
+        // attach realtime listener for alerts for this stable
+        (function(stableId){
+          app.listenStableAlerts(stableId, (alert)=>{
+            const el = document.getElementById(`alerts-${stableId}`);
+            const a = document.createElement('div'); a.className='alert';
+            a.innerText = `${alert.type.toUpperCase()}: ${alert.message}`;
+            el.prepend(a);
+            setTimeout(()=>a.remove(), 20000);
+          });
+        })(id);
+      }
+    }
+    render();
+  </script>
+</body>
+</html>

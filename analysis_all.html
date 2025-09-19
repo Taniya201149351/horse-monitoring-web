@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HorseMonitor — All Analysis</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="nav" style="margin-bottom:12px">
+      <div class="brand">HorseMonitor</div>
+      <div class="nav-links small-muted"><a href="dashboard.html" class="small-muted">Dashboard</a></div>
+    </div>
+
+    <div class="card">
+      <h3 class="h1">Realtime Overview</h3>
+      <div id="overviewList" class="list"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h3 class="h1">Totals chart (Food/Water today)</h3>
+      <canvas id="totalsChart"></canvas>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    app.onAuthReady(async ()=>{
+      const stables = await app.getAllStables();
+      const horses = await app.getAllHorses();
+      const overview = document.getElementById('overviewList');
+      overview.innerHTML = '';
+      const labels=[]; const food=[]; const water=[];
+      for(const id in stables){
+        const s=stables[id];
+        const li = document.createElement('div'); li.className='item';
+        let totalFood=0,totalWater=0;
+        for(const hId in horses){
+          if(horses[hId].locationStable === id){
+            totalFood += Number(horses[hId].todayFoodKg||0);
+            totalWater += Number(horses[hId].todayWaterL||0);
+          }
+        }
+        li.innerHTML = `<div><div style="font-weight:700">${s.name||id}</div><div class="small-muted">${s.location||''}</div></div>
+                        <div style="text-align:right"><div class="small-muted">Food today: ${totalFood} kg</div><div class="small-muted">Water: ${totalWater} L</div></div>`;
+        overview.appendChild(li);
+        labels.push(s.name||id); food.push(totalFood); water.push(totalWater);
+      }
+      // totals chart
+      const ctx = document.getElementById('totalsChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets:[
+          {label:'Food (kg)', data: food},
+          {label:'Water (L)', data: water}
+        ]},
+        options:{responsive:true}
+      });
+    });
+  </script>
+</body>
+</html>

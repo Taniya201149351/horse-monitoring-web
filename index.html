@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HorseMonitor — Login</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Firebase + Chart.js required scripts will be included by app.js links -->
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width:480px;margin:40px auto">
+      <div class="nav">
+        <div class="brand">HorseMonitor</div>
+        <div class="nav-links small-muted">Secure access</div>
+      </div>
+
+      <h1 class="h1">Sign in</h1>
+      <p class="subtitle">Login with your email & password (Firebase Auth)</p>
+
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@example.com" />
+
+      <label>Password</label>
+      <input id="password" type="password" placeholder="••••••••" />
+
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button id="btnLogin">Login</button>
+        <button id="btnSignup" style="background:transparent;border:1px solid rgba(255,255,255,0.06)">Sign up</button>
+      </div>
+
+      <p class="small" style="margin-top:12px">After login you'll be redirected to the Dashboard.</p>
+      <div id="msg" class="small-muted" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // page-specific init
+    document.getElementById('btnLogin').addEventListener('click', async ()=>{
+      const email=document.getElementById('email').value.trim();
+      const pw=document.getElementById('password').value;
+      await app.authSignIn(email,pw);
+    });
+    document.getElementById('btnSignup').addEventListener('click', async ()=>{
+      const email=document.getElementById('email').value.trim();
+      const pw=document.getElementById('password').value;
+      await app.authSignUp(email,pw);
+    });
+  </script>
+</body>
+</html>

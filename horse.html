@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HorseMonitor — Horse</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="nav" style="margin-bottom:12px">
+      <div class="brand">HorseMonitor</div>
+      <div class="nav-links small-muted"><a href="dashboard.html" class="small-muted">Dashboard</a></div>
+    </div>
+
+    <div id="horseCard" class="card"></div>
+
+    <div class="row" style="margin-top:12px">
+      <div class="col card">
+        <h3 class="h1">Daily Analysis</h3>
+        <canvas id="chartDaily"></canvas>
+      </div>
+      <div class="col card">
+        <h3 class="h1">Weekly Analysis</h3>
+        <canvas id="chartWeekly"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const horseId = location.hash?.substring(1);
+    if(!horseId){
+      document.getElementById('horseCard').innerHTML = '<div class="small-muted">No horse selected</div>';
+    } else {
+      app.onAuthReady(async ()=>{
+        const h = await app.getHorse(horseId);
+        renderHorse(h);
+        // load analysis data
+        const daily = app.getHorseDailyHistory(horseId); // returns aggregated daily object
+        const weekly = app.getHorseWeeklyHistory(horseId); // returns last 7 days array
+        drawChart('chartDaily', daily.labels, daily.food, daily.water, daily.temp, daily.hr);
+        drawChart('chartWeekly', weekly.labels, weekly.food, weekly.water, weekly.temp, weekly.hr);
+      });
+    }
+
+    function renderHorse(h){
+      document.getElementById('horseCard').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>
+            <div style="font-weight:800;font-size:20px">${h.name || '—'}</div>
+            <div class="small-muted">${h.breed||''} • ${h.sex||''} • ${h.age||'–'} yrs</div>
+          </div>
+          <div style="text-align:right">
+            <div class="small-muted">Location</div>
+            <div class="metric">${h.locationStable || '—'}</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col widget">
+            <div class="small-muted">Temperature</div>
+            <div class="metric">${h.temp ?? '–'} °C</div>
+            <div class="small-muted">normal: 37.5-38.5</div>
+          </div>
+          <div class="col widget">
+            <div class="small-muted">Heart rate</div>
+            <div class="metric">${h.heartRate ?? '–'} bpm</div>
+            <div class="small-muted">normal: 28-44</div>
+          </div>
+          <div class="col widget">
+            <div class="small-muted">Weight</div>
+            <div class="metric">${h.weight ?? '–'} kg</div>
+            <div class="small-muted">Height:${h.height??'–'} cm</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="row">
+          <div class="col widget">
+            <div class="small-muted">Food today</div>
+            <div class="metric">${h.todayFoodKg ?? 0} kg</div>
+          </div>
+          <div class="col widget">
+            <div class="small-muted">Water today</div>
+            <div class="metric">${h.todayWaterL ?? 0} L</div>
+          </div>
+          <div class="col widget">
+            <div class="small-muted">Alerts</div>
+            <div id="horseAlert">${h.alerts?.length? h.alerts.join(', '): '—'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function drawChart(canvasId, labels, food, water, temp, hr){
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      // create multi-axis chart: food/water as bars, temp/hr as lines
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label:'Food (kg)', type:'bar', data: food, yAxisID:'y1' },
+            { label:'Water (L)', type:'bar', data: water, yAxisID:'y1' },
+            { label:'Temp (°C)', type:'line', data: temp, yAxisID:'y2', tension:0.3 },
+            { label:'HR (bpm)', type:'line', data: hr, yAxisID:'y3', tension:0.3 }
+          ]
+        },
+        options: {
+          responsive:true,
+          scales:{
+            y1:{position:'left', title:{display:true,text:'Food/Water'}},
+            y2:{position:'right', title:{display:true,text:'Temp (°C)'}, grid:{display:false}, beginAtZero:false},
+            y3:{position:'right', offset:true, title:{display:true,text:'Heart Rate'}, grid:{display:false}, beginAtZero:false}
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

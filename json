@@ -1,0 +1,51 @@
+{
+  "users": {
+    "<uid>": {
+      "contact": "...",
+      "stableName": "...",
+      "location": "...",
+      "managerName": "..."
+    }
+  },
+  "stables": {
+    "stable1": {
+      "name": "Stable A",
+      "location": "Field 1",
+      "sensors": {
+        "temperature": 27.4,
+        "humidity": 55,
+        "h2s": 0.02
+      },
+      "horses": {
+        "horse1": true,
+        "horse2": true
+      }
+    }
+  },
+  "horses": {
+    "horse1": {
+      "name": "Star",
+      "age": 6,
+      "sex": "female",
+      "breed": "Thoroughbred",
+      "height": 165,
+      "weight": 500,
+      "todayFoodKg": 6.2,
+      "todayWaterL": 35,
+      "temp": 38.3,
+      "heartRate": 42,
+      "locationStable": "stable1",
+      "history": {
+        "2025-09-18": {
+          "foodKg": 6,
+          "waterL": 33,
+          "avgTemp": 38.2,
+          "avgHR": 44
+        }
+      }
+    }
+  },
+  "alerts": {
+    "alert1": { "type": "hr", "horseId": "horse1", "message": "...", "time": 169..." };
+  }
+}
