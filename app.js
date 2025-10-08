@@ -6,7 +6,7 @@
 
 /* ---- Load Firebase SDKs dynamically so we keep html files simple ---- */
 (function loadFirebase(){
-  const base = "https://www.gstatic.com/firebasejs/9.22.2/";
+  const base = "https://horse-equines-36e1f-default-rtdb.asia-southeast1.firebasedatabase.app/";
   const scripts = [
     base + "firebase-app-compat.js", // compat makes it easier for vanilla usage
     base + "firebase-auth-compat.js",
@@ -22,10 +22,10 @@
 const app = (function(){
   // PLACEHOLDER: put your Firebase config here. DO NOT commit keys publicly.
   const firebaseConfig = {
-    apiKey: "PASTE_YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT",
+    apiKey: "AIzaSyDYCxZkSxKaQGEvSAlpcDGNjLRMK1ZC9Hc",
+    authDomain: "Horse Monitoring.firebaseapp.com",
+    databaseURL: "https://horse-equines-36e1f-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "horse-equines-36e1f",
     storageBucket: "YOUR_PROJECT.appspot.com",
     messagingSenderId: "...",
     appId: "..."
@@ -283,3 +283,4 @@ const app = (function(){
   };
 })();
 window.app = app; // expose globally for page scripts
+
